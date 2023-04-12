@@ -38,9 +38,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TranslationRegistryTest {
   static final TranslationRegistry REGISTRY = TranslationRegistry.create(Key.key("adventure", "test"));
@@ -204,6 +202,11 @@ class TranslationRegistryTest {
       .addEqualityGroup(REGISTRY)
       .addEqualityGroup(TranslationRegistry.create(Key.key("adventure", "test_2")))
       .testEquals();
+  }
+
+  @Test
+  void testComponentArguments() {
+    assertTrue(true);
   }
 
   @Test

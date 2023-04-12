@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -224,4 +225,10 @@ public interface TranslationRegistry extends Translator {
    * @since 4.0.0
    */
   void unregister(final @NotNull String key);
+
+  /**
+   *
+   * @param postProcessor
+   */
+  void processor(final @NotNull Function<String, Component> postProcessor);
 }

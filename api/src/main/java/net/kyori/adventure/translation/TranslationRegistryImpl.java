@@ -24,13 +24,18 @@
 package net.kyori.adventure.translation;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import net.kyori.adventure.internal.Internals;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +47,7 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
   private final Key name;
   private final Map<String, Translation> translations = new ConcurrentHashMap<>();
   private Locale defaultLocale = Locale.US; // en_us
+  private Function<String, Component> processor = Component::text;
 
   TranslationRegistryImpl(final Key name) {
     this.name = name;
@@ -55,6 +61,11 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
   @Override
   public void unregister(final @NotNull String key) {
     this.translations.remove(key);
+  }
+
+  @Override
+  public void processor(final @NotNull Function<String, Component> processor) {
+    this.processor = requireNonNull(processor, "processor");
   }
 
   @Override
@@ -72,6 +83,21 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
     final Translation translation = this.translations.get(key);
     if (translation == null) return null;
     return translation.translate(locale);
+  }
+
+  @Override
+  public @Nullable Component translate(final @NotNull TranslatableComponent component, final @NotNull Locale locale) {
+    final MessageFormat translated = translate(component.key(), locale);
+    if (translated == null) return null;
+    Component processed = processor.apply(translated.toPattern());
+    final List<Component> arguments = component.args();
+    for (int i = 0; i < arguments.size(); i++) {
+      processed =  processed.replaceText(TextReplacementConfig.builder()
+        .match("{"+i+"}")
+        .replacement(arguments.get(i))
+        .build());
+    }
+    return processed;
   }
 
   @Override
